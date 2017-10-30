@@ -15,7 +15,7 @@ def number_of_entries(user_dict):
 
 def combine_entries(first_entry, second_entry):
     # Combine two entries and keep timestamp from first
-    if first_entry[0] != entry[0]:
+    if first_entry[0] != second_entry[0]:
         raise ValueError("Cannot combine entries from two different IDs")
     else:
         return [first_entry[0], first_entry[1],
@@ -26,26 +26,21 @@ def combine_entries(first_entry, second_entry):
                 round((float(first_entry[6]) + float(second_entry[6])), 2)]
 
 
-def write_csv(user_dict, csv_headers, filename, csv_count):
+def write_csv(output, filename, csv_count):
+    # Write csv data to file
     filename = "%d_%s" % (csv_count, filename)
-    print("Write %d entries to csv %s" % (number_of_entries(user_dict),
+    print("Write %d entries to csv %s" % (len(output) - 1,
                                           filename))
-    newlist = [csv_headers]
-    for user in user_dict:
-        for entry in user_dict[user]["data"]:
-            newlist.append(entry)
     newcsv = open(filename, 'w')
     with newcsv:
         writer = csv.writer(newcsv)
-        writer.writerows(newlist)
+        writer.writerows(output)
 
     return csv_count + 1
 
 
 def write_user_csv(user_dict, filename, csv_count):
-    filename = "%d_%s" % (csv_count, filename)
-    print("Write %d entries to csv %s" % (number_of_entries(user_dict),
-                                          filename))
+    # Set up csv output for user data
     # Set CSV headers
     output = [["group", "PBID", "mon", "tue", "wed",
                "thu", "fri", "sat", "sun", "total-brushes",
@@ -66,39 +61,29 @@ def write_user_csv(user_dict, filename, csv_count):
             user_dict[user]["average_brush_time"],
             ]
         output.append(user_row)
-    newcsv = open(filename, 'w')
-    with newcsv:
-        writer = csv.writer(newcsv)
-        writer.writerows(output)
 
-    return csv_count + 1
+    return write_csv(output, filename, csv_count)
 
 
 def write_group_csv(group_dict, filename, csv_count):
-    filename = "%d_%s" % (csv_count, filename)
-    print("Write %d entries to csv %s" % (len(group_dict), filename))
+    # set up csv output for group data
     # Set up headers
     output = [['group', 'users', 'total-valid-brushes', 'avg-brushes-per-user',
                'avg-brush-duration', 'score', 'rank']]
 
-    for group in groups:
+    for group in group_dict:
         group_row = [
             group,
-            groups[group]["valid_users_in_group"],
-            groups[group]["total_valid_brush_sessions"],
-            groups[group]["avg_brush_sessions_per_user"],
-            groups[group]["avg_brush_time"],
-            groups[group]["score"],
-            groups[group]["rank"],
+            group_dict[group]["valid_users_in_group"],
+            group_dict[group]["total_valid_brush_sessions"],
+            group_dict[group]["avg_brush_sessions_per_user"],
+            group_dict[group]["avg_brush_time"],
+            group_dict[group]["score"],
+            group_dict[group]["rank"],
         ]
         output.append(group_row)
 
-    newcsv = open(filename, 'w')
-    with newcsv:
-        writer = csv.writer(newcsv)
-        writer.writerows(output)
-
-    return csv_count + 1
+    return write_csv(output, filename, csv_count)
 
 
 def brush_time(user_entry):
@@ -109,10 +94,10 @@ def brush_time(user_entry):
 
 
 # Load data into a dictionary
-with open('1_rawdata.csv') as datacsv:
-    rdr = csv.reader(datacsv)
+with open('1_rawdata.csv') as data_csv:
+    rdr = csv.reader(data_csv)
 
-    userdata = {}
+    user_data = {}
 
     # Separate data into users in a dict
     count = 0
@@ -120,9 +105,9 @@ with open('1_rawdata.csv') as datacsv:
         if count > 0:
             if any(row):
                 # check if user is already in dict if not add
-                if row[0] not in userdata:
-                    userdata[row[0]] = {}
-                    userdata[row[0]]["data"] = []
+                if row[0] not in user_data:
+                    user_data[row[0]] = {}
+                    user_data[row[0]]["data"] = []
                 # add user data to dict
                 # convert timestamp to datetime
 
@@ -136,39 +121,37 @@ with open('1_rawdata.csv') as datacsv:
                     row[6]
                 ]
                 # Add data to the dictionary
-                userdata[row[0]]["data"].append(newrow)
+                user_data[row[0]]["data"].append(newrow)
         else:
-            print("get headers")
-            print(row)
             headers = row
         count += 1
 
 # Add a user's group to their dictionary
-with open('2_groups.csv') as groupscsv:
-    rdr = csv.reader(groupscsv)
+with open('2_groups.csv') as groups_csv:
+    rdr = csv.reader(groups_csv)
     count = 0
     for row in rdr:
         if count > 0:
             if any(row):
-                if row[1] in userdata:
-                    userdata[row[1]]["group"] = row[0]
+                if row[1] in user_data:
+                    user_data[row[1]]["group"] = row[0]
         count += 1
 
 # Ensure data is in time order (looks like it is, but just in case)
-for user in userdata:
+for user in user_data:
     # Sort user's entrys by timestamp
-    userdata[user]["data"].sort(key=lambda t: t[1])
+    user_data[user]["data"].sort(key=lambda t: t[1])
 
 # Combine entries less than two minutes apart
 # Find the time difference between entries so we can combine
-for user in userdata:
+for user in user_data:
     # List to hold updated user entrys in
     user_updated = []
     # List to cumulate entrys in until gap is larger than 2 minutes
     holding_entry = []
 
     # For entry in user, check if less than two minute gap and combine
-    for entry in userdata[user]["data"]:
+    for entry in user_data[user]["data"]:
         # Skip the first entry as there is nothing to compare it to
         if holding_entry == []:
             holding_entry = entry
@@ -192,35 +175,35 @@ for user in userdata:
     user_updated.append(holding_entry)
 
     # Update user
-    userdata[user]["data"] = user_updated
+    user_data[user]["data"] = user_updated
 
 # Remove entrys less than 20s long
-for user in userdata:
-    for entry in userdata[user]["data"]:
+for user in user_data:
+    for entry in user_data[user]["data"]:
         if brush_time(entry) < 20.0:
             # print("Found a short one!")
             # print(entry)
             # Remove entry
-            userdata[user]["data"].remove(entry)
+            user_data[user]["data"].remove(entry)
 
 # Remove users without any data left
 empty_users = []
-for user in userdata:
-    if userdata[user]["data"] == []:
+for user in user_data:
+    if user_data[user]["data"] == []:
         empty_users.append(user)
 
 for user in empty_users:
-    del userdata[user]
+    del user_data[user]
 
 # Leave only longest brush session for each morning or evening
-for user in userdata:
+for user in user_data:
     # List to hold longestbrush sessions in
     user_updated = []
     # List to hold current longest brush session for current morn/eve
     holding_entry = []
 
     # For entry in user
-    for entry in userdata[user]["data"]:
+    for entry in user_data[user]["data"]:
         # print("")
         # print(entry)
         # print(holding_entry)
@@ -272,63 +255,64 @@ for user in userdata:
     user_updated.append(holding_entry)
 
     # Update user
-    userdata[user]["data"] = user_updated
+    user_data[user]["data"] = user_updated
 
 
 # How many times did the user brush on each day?
-daysoftheweek = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+days_of_the_week = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 
 # for entry, find day of the week and increase in dict
-for user in userdata:
-    for entry in userdata[user]["data"]:
+for user in user_data:
+    for entry in user_data[user]["data"]:
         dotw = entry[1].strftime("%a").lower()
-        if dotw in userdata[user]:
-            userdata[user][dotw] += 1
+        if dotw in user_data[user]:
+            user_data[user][dotw] += 1
         else:
-            userdata[user][dotw] = 1
+            user_data[user][dotw] = 1
 
 # Set non-existent days to 0
-for user in userdata:
-    for dotw in daysoftheweek:
-        if dotw in userdata[user]:
+for user in user_data:
+    for dotw in days_of_the_week:
+        if dotw in user_data[user]:
             pass
         else:
-            userdata[user][dotw] = 0
+            user_data[user][dotw] = 0
 
 # Find total brushes && twice brushes
-for user in userdata:
+for user in user_data:
     twice_brushes = 0
     total_brushes = 0
-    for dotw in daysoftheweek:
-        total_brushes += userdata[user][dotw]
-        if userdata[user][dotw] == 2:
+    for dotw in days_of_the_week:
+        total_brushes += user_data[user][dotw]
+        if user_data[user][dotw] == 2:
             twice_brushes += 1
-    userdata[user]["total_brushes"] = total_brushes
-    userdata[user]["twice_brushes"] = twice_brushes
+    user_data[user]["total_brushes"] = total_brushes
+    user_data[user]["twice_brushes"] = twice_brushes
 
 # find average brush time
-for user in userdata:
+for user in user_data:
     cumulative_brush_time = 0
     count = 0
-    for entry in userdata[user]["data"]:
+    for entry in user_data[user]["data"]:
         cumulative_brush_time += brush_time(entry)
         count += 1
-    userdata[user]["average_brush_time"] = cumulative_brush_time / count
+    user_data[user]["average_brush_time"] = cumulative_brush_time / count
 
-csvs_written = write_user_csv(userdata, 'user_analysis_output.csv', csvs_written)
+csvs_written = write_user_csv(user_data, 'user_analysis_output.csv',
+                              csvs_written)
 
 
 #
 # GROUP ANALYSIS
 #
 
-groups = {}
+groups_data = {}
 
-for user in userdata:
+for user in user_data:
     # If group is not in the dict, set it up
-    usergroup = userdata[user]["group"]
-    if usergroup not in groups:
-        groups[usergroup] = {
+    usergroup = user_data[user]["group"]
+    if usergroup not in groups_data:
+        groups_data[usergroup] = {
             'valid_users_in_group': 0,
             'total_valid_brush_sessions': 0,
             'total_avg_brush_time': 0,
@@ -338,28 +322,28 @@ for user in userdata:
             'rank': 0,
         }
 
-    groups[usergroup]["valid_users_in_group"] += 1
-    groups[usergroup]["total_valid_brush_sessions"] += userdata[user]["total_brushes"]
-    groups[usergroup]["total_avg_brush_time"] += userdata[user]["average_brush_time"]
+    groups_data[usergroup]["valid_users_in_group"] += 1
+    groups_data[usergroup]["total_valid_brush_sessions"] += user_data[user]["total_brushes"]
+    groups_data[usergroup]["total_avg_brush_time"] += user_data[user]["average_brush_time"]
 
 # Calculate group averages and give the group a score
-for group in groups:
-    groups[group]["avg_brush_time"] = groups[group]["total_avg_brush_time"] / groups[group]["valid_users_in_group"]
-    groups[group]["avg_brush_sessions_per_user"] = groups[group]["total_valid_brush_sessions"] / groups[group]["valid_users_in_group"]
-    groups[group]["score"] = groups[group]["avg_brush_sessions_per_user"] * groups[group]["avg_brush_time"]
+for group in groups_data:
+    groups_data[group]["avg_brush_time"] = groups_data[group]["total_avg_brush_time"] / groups_data[group]["valid_users_in_group"]
+    groups_data[group]["avg_brush_sessions_per_user"] = groups_data[group]["total_valid_brush_sessions"] / groups_data[group]["valid_users_in_group"]
+    groups_data[group]["score"] = groups_data[group]["avg_brush_sessions_per_user"] * groups_data[group]["avg_brush_time"]
 
 # Output the group rankings
 groupscores = []
-for group in groups:
-    groupscores.append((group, groups[group]["score"]))
+for group in groups_data:
+    groupscores.append((group, groups_data[group]["score"]))
 
 groupscores.sort(key=lambda t: t[1], reverse=True)
 
 # Add rank to dictionary
 count = 1
 for group in groupscores:
-    groups[group[0]]["rank"] = count
+    groups_data[group[0]]["rank"] = count
     count += 1
 
-csvs_written = write_group_csv(groups, 'group_analysis_output.csv',
+csvs_written = write_group_csv(groups_data, 'group_analysis_output.csv',
                                csvs_written)
