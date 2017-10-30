@@ -1,20 +1,20 @@
 # Playbrush Data Analysis
 
 ## RULES
-each row is a brushing session
-Merge sessions that are <2mins apart
-Total length of session = SUM(up, down, left right and none)
-discard sessions <20s (after merges!)
-For multiple brushes in morning or evening, only keep longest
-brushes before 2pm are morning, after are evening
+- Each row is a brushing session
+- Merge sessions that are <2mins apart
+- Total length of session = SUM(up, down, left right and none)
+- Discard sessions <20s (after merges!)
+- For multiple brushes in morning or evening, only keep longest
+- Brushes before 2pm are morning, after are evening
 
 How many times has the user brushed in the morning? and in the evening?
-- 0 no brush
-- 1 morning / evening brush
-- 2 morning & evening
+- 0 = no brush
+- 1 = morning / evening brush
+- 2 = morning & evening
 
-user csv output:
-“group,PBID,mon,tue,wed,thu,fri,sat,sun,total-brushes,twice-brushes,avg-brush-time”
+user csv output headers:
+`group,PBID,mon,tue,wed,thu,fri,sat,sun,total-brushes,twice-brushes,avg-brush-time`
 
 ## Steps:
 
