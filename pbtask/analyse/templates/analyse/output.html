@@ -1,0 +1,36 @@
+<section>
+    <h2>Output</h2>
+
+    <table>
+        <th>
+            <td>group</td>
+            <td>PBID</td>
+            <td>mon</td>
+            <td>tue</td>
+            <td>wed</td>
+            <td>thu</td>
+            <td>fri</td>
+            <td>sat</td>
+            <td>sun</td>
+            <td>total-brushes</td>
+            <td>twice-brushes</td>
+            <td>avg-brush-time</td>
+        </th>
+        {% for user in userdata %}
+        <tr>
+            <td>{{user.group}}</td>
+            <td>{{user.PBID}}</td>
+            <td>{{user.mon}}</td>
+            <td>{{user.tue}}</td>
+            <td>{{user.wed}}</td>
+            <td>{{user.thu}}</td>
+            <td>{{user.fri}}</td>
+            <td>{{user.sat}}</td>
+            <td>{{user.sun}}</td>
+            <td>{{user.total-brushes}}</td>
+            <td>{{user.twice-brushes}}</td>
+            <td>{{user.avg-brush-time}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>

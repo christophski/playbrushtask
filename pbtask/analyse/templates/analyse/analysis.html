@@ -1,0 +1,56 @@
+{% extends "analyse/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<section>
+<h3>Groups</h3>
+The winning group is {{winning_group}}
+<table>
+    <tr>
+        <th>Group</th>
+        <th>Users</th>
+        <th>Total Valid<br>Brushes</th>
+        <th>Average Brushes<br>Per User</th>
+        <th>Average Brush<br>Duration</th>
+        <th>Score</th>
+        <th>Rank</th>
+    </tr>
+    {% for group, data in group_data.items %}
+    <tr>
+        <td>{{group}}</td>
+        <td>{{data.rank}}</td>
+        <td>{{data.total_valid_brush_sessions}}</td>
+        <td>{{data.avg_brush_sessions_per_user}}</td>
+        <td>{{data.avg_brush_time}}</td>
+        <td>{{data.score}}</td>
+        <td>{{data.rank}}</td>
+    </tr>
+    {% endfor %}
+</table>
+</section>
+
+<section>
+    <h3>Users</h3>
+    <table id="usertable">
+        <tr>
+            <th>User</th>
+            <th>Group</th>
+            <th>Total Valid<br>Brushes</th>
+            <th>Twice Brushes</th>
+            <th>Average Brush<br>Duration</th>
+            <th>Score</th>
+        </tr>
+        {% for user, data in user_data.items %}
+        <tr>
+            <td>{{user}}</td>
+            <td>{{data.group}}</td>
+            <td>{{data.total_brushes}}</td>
+            <td>{{data.twice_brushes}}</td>
+            <td>{{data.average_brush_time|floatformat:0}}</td>
+            <td>{{data.score|floatformat:0}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+
+{% endblock %}

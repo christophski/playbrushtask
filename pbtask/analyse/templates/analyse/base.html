@@ -1,0 +1,128 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PlayBrush data analyser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <style>
+      /* http://meyerweb.com/eric/tools/css/reset/ 
+         v2.0 | 20110126
+         License: none (public domain)
+      */
+
+      html, body, div, span, applet, object, iframe,
+      h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+      a, abbr, acronym, address, big, cite, code,
+      del, dfn, em, img, ins, kbd, q, s, samp,
+      small, strike, strong, sub, sup, tt, var,
+      b, u, i, center,
+      dl, dt, dd, ol, ul, li,
+      fieldset, form, label, legend,
+      table, caption, tbody, tfoot, thead, tr, th, td,
+      article, aside, canvas, details, embed, 
+      figure, figcaption, footer, header, hgroup, 
+      menu, nav, output, ruby, section, summary,
+      time, mark, audio, video {
+          margin: 0;
+          padding: 0;
+          border: 0;
+          font-size: 100%;
+          font: inherit;
+          vertical-align: baseline;
+      }
+      /* HTML5 display-role reset for older browsers */
+      article, aside, details, figcaption, figure, 
+      footer, header, hgroup, menu, nav, section {
+          display: block;
+      }
+
+      html {
+          overflow-y: scroll;
+      }
+
+      body {
+          line-height: 1;
+          background-color: #f9f9f9;
+      }
+      ol, ul {
+          list-style: none;
+      }
+      blockquote, q {
+          quotes: none;
+      }
+      blockquote:before, blockquote:after,
+      q:before, q:after {
+          content: '';
+          content: none;
+      }
+
+      label  {
+          display: block;
+      } 
+
+      h1, h2, h3 , h4, h5 {
+          margin-bottom:  15px;
+          color: #FF3B3F;
+      }
+
+      h1 {
+          font-size: 2em;
+      }
+
+      h2 {
+          font-size: 1.8em;
+      }
+
+      h3 {
+          font-size: 1.6em;
+      }
+
+      h4 {
+          font-size: 1.4em;
+      }
+
+      h5 {
+          font-size: 1.2em;
+      }
+
+      /* Christie Grinham CSS */
+
+      body {
+        background-color: #EFEFEF;
+        font-family: sans-serif;
+      }
+
+      table {
+        margin:  20px auto;
+      }
+
+      td, th {
+        padding: 5px 20px;
+        text-align: center;
+      }
+
+      #content {
+        width:  1000px;
+        margin: 0 auto;
+      }
+
+      section {
+        background-color: #CAEBF2;
+        border: 1px solid;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        margin: 10px 0;
+      }
+    </style>
+</head>
+<body>
+<div id="content">
+<a href="/"><h1>PlayBrush Analyser</h1></a>
+{% block content %}{% endblock %}
+</div>
+</body>
+</html>

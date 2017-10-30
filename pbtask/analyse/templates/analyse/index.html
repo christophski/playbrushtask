@@ -1,0 +1,17 @@
+{% extends "analyse/base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<section>
+    {% if form %}
+    <h2>Upload data</h2>
+    <form action="/" enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        {{form}} <br><br>
+        <input type="submit" value="Upload">
+    </form>
+    {% else %}
+
+    {%endif %}
+</section>
+{% endblock %}
