@@ -1,5 +1,9 @@
 # Playbrush Data Analysis
 
+Folder pbtask contains a Django interface to upload rawdata and group csvs and receive results.
+
+Run analyse.py to use '1_rawdata.csv' and '2_groups.csv' for analysis
+
 ## RULES
 - Each row is a brushing session
 - Merge sessions that are <2mins apart
